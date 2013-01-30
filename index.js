@@ -372,6 +372,13 @@
     if (!el || 'A' != el.nodeName) return;
     var href = el.href;
     var path = el.pathname + el.search;
+    
+    // XXX: I don't think this hack will work in earlier versions of IE, 
+    // fix to properly parse out path from href; I'm just putting this in for
+    // now to see if it works
+    if (path[0] !== '/')
+      path = '/' + path;
+    
     if (el.hash || '#' == el.getAttribute('href')) return;
     if (!sameOrigin(href)) return;
     var orig = path;
