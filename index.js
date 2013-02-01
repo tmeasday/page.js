@@ -92,8 +92,8 @@
     if (running) return;
     running = true;
     if (false === options.dispatch) dispatch = false;
-    if (false !== options.popstate) window.addEventListener('popstate', onpopstate, false);
-    if (false !== options.click) window.addEventListener('click', onclick, false);
+    if (false !== options.popstate) addEvent(window, 'popstate', onpopstate);
+    if (false !== options.click) addEvent(window, 'click', onclick);
     if (!dispatch) return;
     page.replace(location.pathname + location.search, null, true, dispatch);
   };
@@ -106,8 +106,8 @@
 
   page.stop = function(){
     running = false;
-    removeEventListener('click', onclick, false);
-    removeEventListener('popstate', onpopstate, false);
+    removeEvent('click', onclick, false);
+    removeEvent('popstate', onpopstate, false);
   };
 
   /**
@@ -398,7 +398,7 @@
       ? e.button
       : e.which;
   }
-
+  
   /**
    * Check if `href` is the same origin.
    */
@@ -408,6 +408,27 @@
     if (location.port) origin += ':' + location.port;
     return 0 == href.indexOf(origin);
   }
+  
+  /**
+   * Basic cross browser event code
+   */
+
+   function addEvent( obj, type, fn ) {
+     if ( obj.attachEvent ) {
+       obj['e'+type+fn] = fn;
+       obj[type+fn] = function(){obj['e'+type+fn]( window.event );}
+       obj.attachEvent( 'on'+type, obj[type+fn] );
+     } else
+       obj.addEventListener( type, fn, false );
+   }
+   
+   function removeEvent( obj, type, fn ) {
+     if ( obj.detachEvent ) {
+       obj.detachEvent( 'on'+type, obj[type+fn] );
+       obj[type+fn] = null;
+     } else
+       obj.removeEventListener( type, fn, false );
+   }
 
   /**
    * Expose `page`.
