@@ -92,8 +92,8 @@
     if (running) return;
     running = true;
     if (false === options.dispatch) dispatch = false;
-    if (false !== options.popstate) addEvent(window, 'popstate', onpopstate);
-    if (false !== options.click) addEvent(window, 'click', onclick);
+    if (false !== options.popstate) addEvent(document.body, 'popstate', onpopstate);
+    if (false !== options.click) addEvent(document.body, 'click', onclick);
     if (!dispatch) return;
     page.replace(location.pathname + location.search, null, true, dispatch);
   };
@@ -365,9 +365,9 @@
    */
 
   function onclick(e) {
-    if (1 != which(e)) return;
+    if (!which(e)) return;
     if (e.defaultPrevented) return;
-    var el = e.target;
+    var el = e.target || e.srcElement;
     while (el && 'A' != el.nodeName) el = el.parentNode;
     if (!el || 'A' != el.nodeName) return;
     var href = el.href;
@@ -384,7 +384,7 @@
     var orig = path;
     path = path.replace(base, '');
     if (base && orig == path) return;
-    e.preventDefault();
+    e.preventDefault ? e.preventDefault() : e.returnValue = false;
     page.show(orig);
   }
 
@@ -395,8 +395,8 @@
   function which(e) {
     e = e || window.event;
     return null == e.which
-      ? e.button
-      : e.which;
+      ? e.button == 0
+      : e.which == 1;
   }
   
   /**
@@ -414,10 +414,12 @@
    */
 
    function addEvent( obj, type, fn ) {
-     if ( obj.attachEvent ) {
-       obj['e'+type+fn] = fn;
-       obj[type+fn] = function(){obj['e'+type+fn]( window.event );}
-       obj.attachEvent( 'on'+type, obj[type+fn] );
+     if ( obj.attachEvent ) {       // 
+            // obj['e'+type+fn] = fn;
+            // obj[type+fn] = function(){obj['e'+type+fn]( window.event );}
+            // obj.attachEvent( 'on'+type, obj[type+fn] );
+       // console.log(type);
+       obj.attachEvent( 'on'+type, fn );
      } else
        obj.addEventListener( type, fn, false );
    }
