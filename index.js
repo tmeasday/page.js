@@ -92,7 +92,7 @@
     if (running) return;
     running = true;
     if (false === options.dispatch) dispatch = false;
-    if (false !== options.popstate) addEvent(document.body, 'popstate', onpopstate);
+    if (false !== options.popstate) addEvent(window, 'popstate', onpopstate);
     if (false !== options.click) addEvent(document.body, 'click', onclick);
     if (!dispatch) return;
     page.replace(location.pathname + location.search, null, true, dispatch);
@@ -414,22 +414,17 @@
    */
 
    function addEvent( obj, type, fn ) {
-     if ( obj.attachEvent ) {       // 
-            // obj['e'+type+fn] = fn;
-            // obj[type+fn] = function(){obj['e'+type+fn]( window.event );}
-            // obj.attachEvent( 'on'+type, obj[type+fn] );
-       // console.log(type);
-       obj.attachEvent( 'on'+type, fn );
-     } else
+     if ( obj.addEventListener ) {
        obj.addEventListener( type, fn, false );
+     } else
+       obj.attachEvent( 'on'+type, fn );
    }
    
    function removeEvent( obj, type, fn ) {
-     if ( obj.detachEvent ) {
-       obj.detachEvent( 'on'+type, obj[type+fn] );
-       obj[type+fn] = null;
-     } else
+     if ( obj.removeEventListener ) {
        obj.removeEventListener( type, fn, false );
+     } else
+       obj.detachEvent( 'on'+type, fn );
    }
 
   /**
