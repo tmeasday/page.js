@@ -1,4 +1,3 @@
-
 ;(function(){
 
   /**
@@ -374,6 +373,7 @@
     var path = el.pathname + el.search;
     if (el.hash || '#' == el.getAttribute('href')) return;
     if (!sameOrigin(href)) return;
+    if (el.getAttribute('target')) return;
     var orig = path;
     path = path.replace(base, '');
     if (base && orig == path) return;
